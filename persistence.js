@@ -36,4 +36,16 @@ async function writeAlbum(data) {
     }
 }
 
-module.exports = { loadPhoto, writePhoto, loadAlbum, writeAlbum };
+async function loadUsers() {
+    try {
+        const data = await fs.readFile('users.json', 'utf-8')
+        return JSON.parse(data)
+    } catch (err) {
+        console.error("Error reading users.json:", err.message)
+        return []
+    }
+}
+
+
+
+module.exports = { loadPhoto, writePhoto, loadAlbum, writeAlbum, loadUsers };
