@@ -1,5 +1,16 @@
+// Huda Mansoori
+// 60304645
+// Assignment 02
+
 const prompt = require('prompt-sync')();
 const business = require('./business');
+
+/**
+ * Main function for running the photo management CLI application.
+ * Handles user login and provides options to find photos, update photo details,
+ * list album photos, tag photos, and exit the application.
+ * @returns {Promise<void>}
+ */
 
 async function main() {
     
