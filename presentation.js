@@ -5,22 +5,11 @@
 const prompt = require('prompt-sync')();
 const business = require('./business');
 
-/**
- * Main function for running the photo management CLI application.
- * Handles user login and provides options to find photos, update photo details,
- * list album photos, tag photos, and exit the application.
- * @returns {Promise<void>}
- */
 async function main() {
-    
-    let user = null;
-    while (!user) {
-        let username = prompt("Username: ");
-        let password = prompt("Password: ");
-        user = await business.login(username, password);
-        if (!user) console.log("Invalid username or password. Try again.");
-    }
-    console.log(`Welcome, ${user.username}!`);
+
+    // No login — default user for functions
+    const user = { id: "default" };
+    console.log("Welcome to the Photo Management App!");
 
     while (true) {
         console.log("\nOptions:");
@@ -35,8 +24,7 @@ async function main() {
         if (selection === 1) {
             let id = Number(prompt("Photo ID? "));
             const photo = await business.findPhotoById(id, user.id);
-            if (photo === 'unauthorized') console.log("You are not allowed to access this photo.");
-            else if (!photo) console.log("Photo not found");
+            if (!photo) console.log("Photo not found");
             else {
                 console.log(`Filename: ${photo.filename}`);
                 console.log(`Title: ${photo.title}`);
@@ -48,10 +36,7 @@ async function main() {
         else if (selection === 2) {
             let id = Number(prompt("Photo ID? "));
             const photo = await business.findPhotoById(id, user.id);
-            if (photo === 'unauthorized') {
-                console.log("You are not allowed to update this photo.");
-                continue;
-            } else if (!photo) {
+            if (!photo) {
                 console.log("Photo not found");
                 continue;
             }
@@ -63,7 +48,6 @@ async function main() {
             const updated = await business.updatePhotoDetails(id, newTitle, newDesc, user.id);
             console.log(updated ? "Photo updated." : "Photo not found");
         }
-
         else if (selection === 3) {
             let albumName = prompt("Album name? ");
             const list = await business.listAlbumPhotos(albumName);
@@ -77,8 +61,7 @@ async function main() {
             let id = Number(prompt("Photo ID? "));
             let tag = prompt("Tag to add? ");
             const result = await business.tagPhoto(id, tag, user.id);
-            if (result === 'unauthorized') console.log("You are not allowed to tag this photo.");
-            else if (result === 'not found') console.log("Photo not found");
+            if (result === 'not found') console.log("Photo not found");
             else if (result === 'empty') console.log("No tag entered");
             else if (result === 'exists') console.log("Tag already exists");
             else console.log("Tag added.");
