@@ -1,6 +1,6 @@
 // Huda Mansoori
 // 60304645
-// Assignment 02
+// Assignment 03
 
 const prompt = require('prompt-sync')();
 const business = require('./business');
@@ -11,7 +11,6 @@ const business = require('./business');
  * list album photos, tag photos, and exit the application.
  * @returns {Promise<void>}
  */
-
 async function main() {
     
     let user = null;
@@ -90,7 +89,6 @@ async function main() {
         } 
         else console.log("******ERROR!!! Pick a number between 1 and 5");
     }
-
 }
 
 main();
