@@ -7,8 +7,6 @@ const business = require('./business');
 
 async function main() {
 
-    // No login — default user for functions
-    const user = { id: "default" };
     console.log("Welcome to the Photo Management App!");
 
     while (true) {
@@ -22,8 +20,8 @@ async function main() {
         let selection = Number(prompt("Your selection: "));
 
         if (selection === 1) {
-            let id = Number(prompt("Photo ID? "));
-            const photo = await business.findPhotoById(id, user.id);
+            let id = prompt("Photo ID? ");
+            const photo = await business.findPhotoById(id);
             if (!photo) console.log("Photo not found");
             else {
                 console.log(`Filename: ${photo.filename}`);
@@ -34,8 +32,8 @@ async function main() {
             }
         } 
         else if (selection === 2) {
-            let id = Number(prompt("Photo ID? "));
-            const photo = await business.findPhotoById(id, user.id);
+            let id = prompt("Photo ID? ");
+            const photo = await business.findPhotoById(id);
             if (!photo) {
                 console.log("Photo not found");
                 continue;
@@ -45,7 +43,7 @@ async function main() {
             let newTitle = prompt(`Title [${photo.title}]: `);
             let newDesc = prompt(`Description [${photo.description}]: `);
 
-            const updated = await business.updatePhotoDetails(id, newTitle, newDesc, user.id);
+            const updated = await business.updatePhotoDetails(id, newTitle, newDesc);
             console.log(updated ? "Photo updated." : "Photo not found");
         }
         else if (selection === 3) {
@@ -58,9 +56,9 @@ async function main() {
             }
         } 
         else if (selection === 4) {
-            let id = Number(prompt("Photo ID? "));
+            let id = prompt("Photo ID? ");
             let tag = prompt("Tag to add? ");
-            const result = await business.tagPhoto(id, tag, user.id);
+            const result = await business.tagPhoto(id, tag);
             if (result === 'not found') console.log("Photo not found");
             else if (result === 'empty') console.log("No tag entered");
             else if (result === 'exists') console.log("Tag already exists");
