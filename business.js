@@ -1,33 +1,31 @@
-// Huda Mansoori
+// HUDA MANSOORI
 // 60304645
-// Assignment 03
+// ASSIGNMENT 03
 
+// business.js
 const DateFormat = require('dayjs');
 const persistence = require('./persistence');
-const { ObjectId } = require('mongodb');
 
 /**
- * Finds a photo by its ID.
- * @param {string} id - Photo ID (MongoDB _id)
- * @returns {Promise<Object|null>} Photo details or null if not found
+ * Find a photo by ID
+ * @param {number} id
+ * @returns {Promise<Object|null>}
  */
 async function findPhotoById(id) {
-    const photos = await persistence.loadPhoto();
-    const albums = await persistence.loadAlbum();
+    const photos = await persistence.loadPhotos();
+    const albums = await persistence.loadAlbums();
 
-    // Convert string id to ObjectId for MongoDB compatibility
-    let photo = photos.find(p => p._id.toString() === id);
+    const photo = photos.find(p => p.id === id);
     if (!photo) return null;
 
-    let formattedDate = DateFormat(photo.date).format("DD MMM YYYY");
+    const formattedDate = DateFormat(photo.date).format("DD MMM YYYY");
 
-    let albumNames = photo.albums.map(aid => {
-        let album = albums.find(a => a._id.toString() === aid.toString());
+    const albumNames = photo.albums.map(aid => {
+        const album = albums.find(a => a.id === aid);
         return album ? album.name : '';
     });
 
     return {
-        id: photo._id.toString(),
         filename: photo.filename,
         title: photo.title,
         description: photo.description,
@@ -38,33 +36,38 @@ async function findPhotoById(id) {
 }
 
 /**
- * Updates title/description of a photo
+ * Update photo details
+ * @param {number} id
+ * @param {string} newTitle
+ * @param {string} newDesc
+ * @returns {Promise<boolean>}
  */
 async function updatePhotoDetails(id, newTitle, newDesc) {
-    const photo = await findPhotoById(id);
+    const photos = await persistence.loadPhotos();
+    const photo = photos.find(p => p.id === id);
     if (!photo) return false;
 
-    const updatedData = {};
-    if (newTitle !== "") updatedData.title = newTitle;
-    if (newDesc !== "") updatedData.description = newDesc;
+    if (newTitle !== "") photo.title = newTitle;
+    if (newDesc !== "") photo.description = newDesc;
 
-    const result = await persistence.writePhoto(id, updatedData);
-    return result;
+    await persistence.savePhotos(photos);
+    return true;
 }
 
 /**
  * List all photos in an album
+ * @param {string} albumName
+ * @returns {Promise<Array|null>}
  */
 async function listAlbumPhotos(albumName) {
-    const photos = await persistence.loadPhoto();
-    const albums = await persistence.loadAlbum();
+    const photos = await persistence.loadPhotos();
+    const albums = await persistence.loadAlbums();
 
     const album = albums.find(a => a.name.toLowerCase() === albumName.toLowerCase());
     if (!album) return null;
 
-    return photos.filter(p => p.albums.includes(album._id.toString()))
+    return photos.filter(p => p.albums.includes(album.id))
                  .map(p => ({
-                     id: p._id.toString(),
                      filename: p.filename,
                      resolution: p.resolution,
                      tags: p.tags.join(':')
@@ -72,18 +75,21 @@ async function listAlbumPhotos(albumName) {
 }
 
 /**
- * Adds a tag to a photo
+ * Add a tag to a photo
+ * @param {number} id
+ * @param {string} tag
+ * @returns {Promise<string>}
  */
 async function tagPhoto(id, tag) {
-    const photos = await persistence.loadPhoto();
-    let photo = photos.find(p => p._id.toString() === id);
+    const photos = await persistence.loadPhotos();
+    const photo = photos.find(p => p.id === id);
     if (!photo) return 'not found';
     if (!tag) return 'empty';
     if (photo.tags.some(t => t.toLowerCase() === tag.toLowerCase())) return 'exists';
 
-    const updatedData = { tags: [...photo.tags, tag] };
-    const result = await persistence.writePhoto(id, updatedData);
-    return result ? 'added' : 'not found';
+    photo.tags.push(tag);
+    await persistence.savePhotos(photos);
+    return 'added';
 }
 
 module.exports = { findPhotoById, updatePhotoDetails, listAlbumPhotos, tagPhoto };
