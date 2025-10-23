@@ -1,0 +1,37 @@
+<!--
+  Template: photos.html
+  Description:
+    This Handlebars (HBS) template renders a page listing all photos in a specific album.
+    It displays the album name, total number of photos, and a list of photo titles.
+    Each photo title links to its individual photo details page.
+
+  Template variables:
+    - album.name: The name of the current album.
+    - photoCount: The total number of photos in the album.
+    - photoWord(photoCount): A helper function that determines whether to display "photo" or "photos".
+    - photos: An array of photo objects, each with:
+        - id: Unique photo identifier.
+        - title: Photo title to display.
+
+  Example:
+    If album.name = "Summer Trip" and photos = [{id: 1, title: "Beach"}, {id: 2, title: "Mountains"}],
+    the page will show:
+      Photos in Summer Trip (2 photos)
+      - Beach
+      - Mountains
+-->
+
+
+
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Photos in {{album.name}}</title></head>
+<body>
+  <h1>Photos in {{album.name}} ({{photoCount}} {{photoWord photoCount}})</h1>
+  <ul>
+    {{#each photos}}
+      <li><a href="/photo/{{this.id}}">{{this.title}}</a></li>
+    {{/each}}
+  </ul>
+</body>
+</html>

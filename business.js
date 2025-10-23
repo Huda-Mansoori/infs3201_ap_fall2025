@@ -1,95 +1,95 @@
 // HUDA MANSOORI
 // 60304645
-// ASSIGNMENT 03
+// ASSIGNMENT03
 
-// business.js
-const DateFormat = require('dayjs');
+/**
+ * business.js
+ * ----------------
+ * This module acts as the **business logic layer** for the photo album application.
+ * 
+ * Responsibilities:
+ * - Acts as an intermediary between the persistence (database) layer and presentation/UI layer.
+ * - Handles data retrieval, validation, transformation, and formatting before sending data to the user interface.
+ * - Delegates low-level data operations (CRUD) to persistence.js.
+ * 
+ * Dependencies:
+ * - persistence.js → Handles database operations.
+ * - dayjs → Used for formatting dates into a readable format.
+ */
+
 const persistence = require('./persistence');
+const dayjs = require('dayjs');
 
 /**
- * Find a photo by ID
- * @param {number} id
- * @returns {Promise<Object|null>}
+ * Load all albums from the database.
+ * 
+ * @returns {Promise<Array>} Array of album documents.
  */
-async function findPhotoById(id) {
-    const photos = await persistence.loadPhotos();
-    const albums = await persistence.loadAlbums();
-
-    const photo = photos.find(p => p.id === id);
-    if (!photo) return null;
-
-    const formattedDate = DateFormat(photo.date).format("DD MMM YYYY");
-
-    const albumNames = photo.albums.map(aid => {
-        const album = albums.find(a => a.id === aid);
-        return album ? album.name : '';
-    });
-
-    return {
-        filename: photo.filename,
-        title: photo.title,
-        description: photo.description,
-        date: formattedDate,
-        albums: albumNames,
-        tags: photo.tags
-    };
+async function loadAlbums() {
+  return persistence.getAlbums();
 }
 
 /**
- * Update photo details
- * @param {number} id
- * @param {string} newTitle
- * @param {string} newDesc
- * @returns {Promise<boolean>}
+ * Load all photos from the database.
+ * 
+ * @returns {Promise<Array>} Array of photo documents.
  */
-async function updatePhotoDetails(id, newTitle, newDesc) {
-    const photos = await persistence.loadPhotos();
-    const photo = photos.find(p => p.id === id);
-    if (!photo) return false;
-
-    if (newTitle !== "") photo.title = newTitle;
-    if (newDesc !== "") photo.description = newDesc;
-
-    await persistence.savePhotos(photos);
-    return true;
+async function loadPhotos() {
+  return persistence.getPhotos();
 }
 
 /**
- * List all photos in an album
- * @param {string} albumName
- * @returns {Promise<Array|null>}
+ * Retrieve a single photo by its ID and format the date for display.
+ * 
+ * Enhancements:
+ * - Converts the stored ISO date into a more user-friendly format (e.g., "15 Dec 2024").
+ * 
+ * @param {number} id - The photo’s numeric ID.
+ * @returns {Promise<Object|null>} A formatted photo object or null if not found.
  */
-async function listAlbumPhotos(albumName) {
-    const photos = await persistence.loadPhotos();
-    const albums = await persistence.loadAlbums();
+async function getPhoto(id) {
+  const photo = await persistence.getPhotoById(Number(id));
+  if (!photo) return null;
 
-    const album = albums.find(a => a.name.toLowerCase() === albumName.toLowerCase());
-    if (!album) return null;
+  // Format date for display (e.g., 15 Dec 2024)
+  let formattedDate = null;
+  if (photo.date) {
+    try {
+      formattedDate = dayjs(photo.date).format('DD MMM YYYY');
+    } catch (e) {
+      formattedDate = photo.date;
+    }
+  }
 
-    return photos.filter(p => p.albums.includes(album.id))
-                 .map(p => ({
-                     filename: p.filename,
-                     resolution: p.resolution,
-                     tags: p.tags.join(':')
-                 }));
+  return Object.assign({}, photo, { formattedDate });
 }
 
 /**
- * Add a tag to a photo
- * @param {number} id
- * @param {string} tag
- * @returns {Promise<string>}
+ * Get all photos belonging to a specific album by album ID.
+ * 
+ * @param {number} albumId - Album’s numeric ID.
+ * @returns {Promise<Array>} Array of photo documents.
  */
-async function tagPhoto(id, tag) {
-    const photos = await persistence.loadPhotos();
-    const photo = photos.find(p => p.id === id);
-    if (!photo) return 'not found';
-    if (!tag) return 'empty';
-    if (photo.tags.some(t => t.toLowerCase() === tag.toLowerCase())) return 'exists';
-
-    photo.tags.push(tag);
-    await persistence.savePhotos(photos);
-    return 'added';
+async function getPhotosForAlbum(albumId) {
+  return persistence.getPhotosByAlbumId(Number(albumId));
 }
 
-module.exports = { findPhotoById, updatePhotoDetails, listAlbumPhotos, tagPhoto };
+/**
+ * Update the title and description of a specific photo.
+ * 
+ * @param {number} id - Photo’s numeric ID.
+ * @param {string} title - New title.
+ * @param {string} description - New description.
+ * @returns {Promise<boolean>} True if the photo was updated successfully, otherwise false.
+ */
+async function updatePhoto(id, title, description) {
+  return persistence.updatePhotoById(Number(id), title, description);
+}
+
+module.exports = {
+  loadAlbums,
+  loadPhotos,
+  getPhoto,
+  getPhotosForAlbum,
+  updatePhoto
+};

@@ -1,0 +1,33 @@
+<!--
+  Template: index.html
+  Description:
+    This Handlebars (HBS) template displays a list of all photo albums.
+    Each album name is presented as a clickable link that navigates
+    to the page showing the photos within that album.
+
+  Template variables:
+    - albums: An array of album objects, each containing:
+        - id: Unique album identifier.
+        - name: Album name to display.
+
+  Example:
+    If albums = [{id: 1, name: "Vacation"}, {id: 2, name: "Family"}],
+    the page will display:
+      Photo Album
+      - Vacation
+      - Family
+-->
+
+
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Photo Album</title></head>
+<body>
+  <h1>Photo Album</h1>
+  <ul>
+    {{#each albums}}
+      <li><a href="/album/{{this.id}}">{{this.name}}</a></li>
+    {{/each}}
+  </ul>
+</body>
+</html>

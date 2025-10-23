@@ -1,0 +1,37 @@
+<!--
+  Template: editPhoto.hbs
+  Description:
+    This Handlebars template renders an edit form for updating
+    the title and description of a specific photo.
+
+  Template variables:
+    - photo: An object representing the photo being edited, containing:
+        - id: Unique photo identifier (used in the form action URL).
+        - title: Current title of the photo.
+        - description: Current description of the photo.
+
+  Functionality:
+    - The form uses the POST method to submit updated data
+      to /photo/:id/edit (handled by the server).
+    - Both input fields are required for form submission.
+    - On successful update, the user is redirected back to
+      the photo’s details page (handled server-side).
+-->
+
+
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Editing Photo</title></head>
+<body>
+  <h1>Editing Photo</h1>
+  <form action="/photo/{{photo.id}}/edit" method="POST">
+    <label>Title:</label>
+    <input type="text" name="title" value="{{photo.title}}" required><br><br>
+
+    <label>Description:</label>
+    <input type="text" name="description" value="{{photo.description}}" required><br><br>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
